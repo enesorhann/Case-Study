@@ -2,11 +2,12 @@ using CaseStudy.Models;
 
 namespace CaseStudy.Interfaces
 {
-    /// <summary>
-    /// Kuyruktan okunan anket olaylarının iletileceği dış servis sözleşmesi.
-    /// Consumer bu soyutlamayı çağırır; gerçek bir kurulumda bunun arkasında
-    /// bir HTTP istemcisi, e-posta servisi veya raporlama servisi bulunur.
-    /// </summary>
+
+    /// Kuyruktan okunan anket olaylarının iletileceği dış servis
+    //  Consumer bu soyutlamayı çağırır; gerçek bir kurulumda bunun arkasında
+    /// bir başka servis bulunur. 
+    /// Örneğin, bir e-posta servisi veya bir bildirim servisi olabilir.
+
     public interface ISurveyNotificationService
     {
         Task NotifySurveyCreatedAsync(SurveyCreatedEvent surveyCreatedEvent, CancellationToken cancellationToken = default);

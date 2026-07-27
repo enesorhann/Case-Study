@@ -4,8 +4,8 @@ using CaseStudy.Models;
 namespace CaseStudy.Services.Notifications
 {
 
-    /// Dış servise gerçek bir çağrı yapmak yerine
-    /// iletilecek bilgiyi log'a yazdırdık
+    // Dış servise gerçek bir çağrı yapmak yerine
+    // iletilecek bilgiyi log'a yazdırdık
     public class LoggingSurveyNotificationService : ISurveyNotificationService
     {
         private readonly ILogger<LoggingSurveyNotificationService> _logger;

@@ -103,9 +103,7 @@ namespace CaseStudy.Services.RabbitMQ
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
-        /// <summary>
-        /// Mesajı olay tipine göre çözümleyip ilgili dış servis çağrısına iletir.
-        /// </summary>
+        // Mesajı olay tipine göre çözümleyip ilgili dış servis çağrısına iletir.
         private async Task DispatchAsync(string? eventType, string message, CancellationToken cancellationToken)
         {
             using var scope = _scopeFactory.CreateScope();
