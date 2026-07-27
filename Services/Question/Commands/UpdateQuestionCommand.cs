@@ -5,13 +5,13 @@ namespace CaseStudy.Services.Question.Commands
     using CaseStudy.Dtos.Question;
     using CaseStudy.Interfaces.Question;
 
-    public class UpdateQuestionCommand : IRequest<bool>
+    public class UpdateQuestionCommand : IRequest<QuestionDto?>
     {
         public Guid Id { get; set; }
         public UpdateQuestionDto Question { get; set; } = null!;
     }
 
-    public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionCommand, bool>
+    public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionCommand, QuestionDto?>
     {
         private readonly IQuestionRepository questionRepository;
         private readonly IMapper mapper;
@@ -22,20 +22,21 @@ namespace CaseStudy.Services.Question.Commands
             this.mapper = mapper;
         }
 
-        public async Task<bool> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
+        public async Task<QuestionDto?> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
         {
             var question = await questionRepository.GetByIdAsync(request.Id);
 
             if (question is null)
             {
-                return false;
+                return null;
             }
 
             mapper.Map(request.Question, question);
+            question.UpdatedAt = DateTime.UtcNow;
 
             await questionRepository.UpdateAsync(question);
 
-            return true;
+            return mapper.Map<QuestionDto>(question);
         }
     }
 }

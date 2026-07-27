@@ -32,6 +32,7 @@ namespace CaseStudy.Helpers
                 .ForMember(d => d.SurveyId, o => o.Ignore())
                 .ForMember(d => d.Order, o => o.Ignore())
                 .ForMember(d => d.CreatedAt, o => o.Ignore())
+                .ForMember(d => d.UpdatedAt, o => o.Ignore())
                 .ForMember(d => d.Survey, o => o.Ignore())
                 .ForMember(d => d.Answers, o => o.Ignore());
 
@@ -39,6 +40,7 @@ namespace CaseStudy.Helpers
                 .ForMember(d => d.Id, o => o.Ignore())
                 .ForMember(d => d.SurveyId, o => o.Ignore())
                 .ForMember(d => d.CreatedAt, o => o.Ignore())
+                .ForMember(d => d.UpdatedAt, o => o.Ignore())
                 .ForMember(d => d.Survey, o => o.Ignore())
                 .ForMember(d => d.Answers, o => o.Ignore());
 
@@ -48,12 +50,14 @@ namespace CaseStudy.Helpers
                 .ForMember(d => d.Id, o => o.Ignore())
                 .ForMember(d => d.QuestionId, o => o.Ignore())
                 .ForMember(d => d.CreatedAt, o => o.Ignore())
+                .ForMember(d => d.UpdatedAt, o => o.Ignore())
                 .ForMember(d => d.Question, o => o.Ignore());
 
             CreateMap<UpdateAnswerDto, Answer>()
                 .ForMember(d => d.Id, o => o.Ignore())
                 .ForMember(d => d.QuestionId, o => o.Ignore())
                 .ForMember(d => d.CreatedAt, o => o.Ignore())
+                .ForMember(d => d.UpdatedAt, o => o.Ignore())
                 .ForMember(d => d.Question, o => o.Ignore());
         }
     }

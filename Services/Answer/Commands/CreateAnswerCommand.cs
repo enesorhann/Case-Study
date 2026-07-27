@@ -3,6 +3,7 @@ namespace CaseStudy.Services.Answer.Commands
     using AutoMapper;
     using MediatR;
     using CaseStudy.Dtos.Answer;
+    using CaseStudy.Exceptions;
     using CaseStudy.Interfaces.Answer;
     using CaseStudy.Interfaces.Question;
     using CaseStudy.Models;
@@ -40,7 +41,7 @@ namespace CaseStudy.Services.Answer.Commands
 
             if (!question.Survey.IsActive)
             {
-                throw new Exception(
+                throw new SurveyInactiveException(
                     $"Survey '{question.Survey.Title}' is not active and cannot accept new answers.");
             }
 

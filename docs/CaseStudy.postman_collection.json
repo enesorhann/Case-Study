@@ -1,0 +1,469 @@
+{
+  "info": {
+    "name": "CaseStudy — Anket API",
+    "description": "Survey / Question / Answer uçları. İstekleri yukarıdan aşağıya sırayla çalıştırın: oluşturma istekleri dönen id'leri surveyId / questionId / answerId koleksiyon değişkenlerine yazar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "surveyId", "value": "" },
+    { "key": "questionId", "value": "" },
+    { "key": "answerId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Surveys",
+      "item": [
+        {
+          "name": "1. Create survey",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('surveyId', body.id);",
+                  "pm.test('id döndü', () => pm.expect(body.id).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/surveys", "host": ["{{baseUrl}}"], "path": ["api", "surveys"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Müşteri Memnuniyeti\",\n  \"description\": \"2026 Q3 anketi\",\n  \"isActive\": true\n}"
+            },
+            "description": "Anket oluşturur ve RabbitMQ'ya survey.created olayı yayınlar."
+          }
+        },
+        {
+          "name": "2. Get all surveys",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys?isActive=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys"],
+              "query": [
+                { "key": "isActive", "value": "true", "description": "Opsiyonel. Kaldırılırsa tüm anketler döner." }
+              ]
+            },
+            "description": "Anketleri listeler. isActive parametresi opsiyoneldir."
+          }
+        },
+        {
+          "name": "3. Get survey by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('questions alanı var', () => pm.expect(pm.response.json()).to.have.property('questions'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys/{{surveyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys", "{{surveyId}}"]
+            },
+            "description": "Anket detayını, soruları ile birlikte döner."
+          }
+        },
+        {
+          "name": "10. Update survey (pasife alır)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys/{{surveyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys", "{{surveyId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Müşteri Memnuniyeti (revize)\",\n  \"description\": \"2026 Q3 anketi\",\n  \"isActive\": false\n}"
+            },
+            "description": "Anketi günceller ve survey.updated olayı yayınlar. Burada anketi pasife alıyoruz; sonraki 'Create answer (pasif anket)' isteği 409 dönmeli."
+          }
+        },
+        {
+          "name": "13. Delete survey",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys/{{surveyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys", "{{surveyId}}"]
+            },
+            "description": "Anketi siler; soruları ve cevapları da cascade ile silinir."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "4. Create question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('questionId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys/{{surveyId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys", "{{surveyId}}", "questions"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hizmetimizden memnun kaldınız mı?\",\n  \"questionType\": 2,\n  \"order\": 1\n}"
+            },
+            "description": "questionType: 1=Text, 2=SingleChoice, 3=MultipleChoice. order opsiyoneldir; verilmezse son sıranın bir fazlası atanır."
+          }
+        },
+        {
+          "name": "5. Get questions by survey",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys/{{surveyId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys", "{{surveyId}}", "questions"]
+            }
+          }
+        },
+        {
+          "name": "5b. Get question by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}"]
+            }
+          }
+        },
+        {
+          "name": "9. Update question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hizmetimizi tavsiye eder misiniz?\",\n  \"questionType\": 2,\n  \"order\": 1\n}"
+            },
+            "description": "PUT'ta order zorunludur ve 1'den küçük olamaz."
+          }
+        },
+        {
+          "name": "Delete question (opsiyonel)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}"]
+            },
+            "description": "Soruyu ve cevaplarını siler. Sıralı akışı bozmamak için koleksiyon çalıştırılırken atlanabilir."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Answers",
+      "item": [
+        {
+          "name": "6. Create answer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('answerId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}/answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}", "answers"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"respondentName\": \"Enes Orhan\",\n  \"value\": \"Evet\"\n}"
+            },
+            "description": "Anket aktifken çalışır. Pasif ankette 409 Conflict döner."
+          }
+        },
+        {
+          "name": "7. Get answers by question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}/answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}", "answers"]
+            }
+          }
+        },
+        {
+          "name": "7b. Get answer by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/answers/{{answerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "answers", "{{answerId}}"]
+            }
+          }
+        },
+        {
+          "name": "8. Update answer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/answers/{{answerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "answers", "{{answerId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"respondentName\": \"Enes Orhan\",\n  \"value\": \"Kısmen\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete answer (opsiyonel)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/answers/{{answerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "answers", "{{answerId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hata senaryoları",
+      "item": [
+        {
+          "name": "11. Create answer — pasif anket (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('409 Conflict', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}/answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}", "answers"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"respondentName\": \"Test\",\n  \"value\": \"Hayır\"\n}"
+            },
+            "description": "'Update survey (pasife alır)' isteğinden SONRA çalıştırın; anket pasif olduğu için 409 döner."
+          }
+        },
+        {
+          "name": "12. Create survey — boş title (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('400 Bad Request', () => pm.response.to.have.status(400));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/surveys", "host": ["{{baseUrl}}"], "path": ["api", "surveys"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\",\n  \"isActive\": true\n}"
+            },
+            "description": "title zorunlu olduğu için DataAnnotations doğrulaması 400 döndürür."
+          }
+        },
+        {
+          "name": "Get survey — olmayan id (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('404 Not Found', () => pm.response.to.have.status(404));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/surveys/00000000-0000-0000-0000-000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "surveys", "00000000-0000-0000-0000-000000000000"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

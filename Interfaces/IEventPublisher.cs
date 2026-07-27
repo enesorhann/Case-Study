@@ -2,7 +2,7 @@ namespace CaseStudy.Interfaces
 {
     public interface IEventPublisher
     {
-        Task PublishAsync<TEvent>(TEvent @event, string routingKey, CancellationToken cancellationToken = default)
+        Task PublishAsync<TEvent>(TEvent eventMessage, CancellationToken cancellationToken = default)
             where TEvent : class;
     }
 }

@@ -72,6 +72,9 @@ namespace CaseStudy.Controllers
         }
 
         [HttpPut("questions/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateQuestionDto updateQuestionDto)
         {
             if (!ModelState.IsValid)
@@ -80,13 +83,13 @@ namespace CaseStudy.Controllers
             }
 
             var updated = await _mediator.Send(new UpdateQuestionCommand { Id = id, Question = updateQuestionDto });
-            if (!updated)
+            if (updated == null)
             {
                 ModelState.AddModelError("", $"Question '{id}' was not found.");
                 return NotFound(new SerializableError(ModelState));
             }
 
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("questions/{id:guid}")]

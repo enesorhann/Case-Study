@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CaseStudy.Data;
 using CaseStudy.Helpers;
@@ -8,6 +7,7 @@ using CaseStudy.Interfaces.Question;
 using CaseStudy.Interfaces.Survey;
 using CaseStudy.Models;
 using CaseStudy.Repositories;
+using CaseStudy.Services.Notifications;
 using CaseStudy.Services.RabbitMQ;
 
 namespace CaseStudy
@@ -31,6 +31,7 @@ namespace CaseStudy
                 builder.Configuration.GetSection(RabbitMqSettings.SectionName));
 
             builder.Services.AddSingleton<IEventPublisher, SurveyPublisher>();
+            builder.Services.AddScoped<ISurveyNotificationService, LoggingSurveyNotificationService>();
             builder.Services.AddHostedService<SurveyConsumer>();
 
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));

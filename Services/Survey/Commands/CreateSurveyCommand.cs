@@ -48,7 +48,6 @@ namespace CaseStudy.Services.Survey.Commands
                     IsActive = survey.IsActive,
                     CreatedAt = survey.CreatedAt
                 },
-                RabbitMqConstants.SurveyCreatedRoutingKey,
                 cancellationToken);
 
             return mapper.Map<SurveyDetailDto>(survey);

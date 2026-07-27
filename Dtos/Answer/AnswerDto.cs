@@ -7,5 +7,6 @@ namespace CaseStudy.Dtos.Answer
         public string RespondentName { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

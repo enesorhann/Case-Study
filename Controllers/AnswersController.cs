@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using CaseStudy.Dtos.Answer;
+using CaseStudy.Exceptions;
 using CaseStudy.Models;
 using CaseStudy.Services.Answer.Commands;
 using CaseStudy.Services.Answer.Queries;
@@ -49,7 +50,7 @@ namespace CaseStudy.Controllers
             {
                 result = await _mediator.Send(new CreateAnswerCommand { QuestionId = questionId, Answer = createAnswerDto });
             }
-            catch (Exception e)
+            catch (SurveyInactiveException e)
             {
                 ModelState.AddModelError("", e.Message);
                 return Conflict(new SerializableError(ModelState));
@@ -83,6 +84,9 @@ namespace CaseStudy.Controllers
         }
 
         [HttpPut("answers/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateAnswerDto updateAnswerDto)
         {
             if (!ModelState.IsValid)
@@ -91,13 +95,13 @@ namespace CaseStudy.Controllers
             }
 
             var updated = await _mediator.Send(new UpdateAnswerCommand { Id = id, Answer = updateAnswerDto });
-            if (!updated)
+            if (updated == null)
             {
                 ModelState.AddModelError("", $"Answer '{id}' was not found.");
                 return NotFound(new SerializableError(ModelState));
             }
 
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("answers/{id:guid}")]

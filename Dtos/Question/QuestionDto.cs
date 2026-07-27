@@ -10,5 +10,6 @@ namespace CaseStudy.Dtos.Question
         public QuestionType QuestionType { get; set; }
         public int Order { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

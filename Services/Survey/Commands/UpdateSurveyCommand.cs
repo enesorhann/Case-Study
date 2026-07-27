@@ -8,13 +8,13 @@ namespace CaseStudy.Services.Survey.Commands
     using CaseStudy.Interfaces.Survey;
     using CaseStudy.Models;
 
-    public class UpdateSurveyCommand : IRequest<bool>
+    public class UpdateSurveyCommand : IRequest<SurveyDetailDto?>
     {
         public Guid Id { get; set; }
         public UpdateSurveyDto Survey { get; set; } = null!;
     }
 
-    public class UpdateSurveyCommandHandler : IRequestHandler<UpdateSurveyCommand, bool>
+    public class UpdateSurveyCommandHandler : IRequestHandler<UpdateSurveyCommand, SurveyDetailDto?>
     {
         private readonly ISurveyRepository surveyRepository;
         private readonly IEventPublisher eventPublisher;
@@ -30,13 +30,13 @@ namespace CaseStudy.Services.Survey.Commands
             this.mapper = mapper;
         }
 
-        public async Task<bool> Handle(UpdateSurveyCommand request, CancellationToken cancellationToken)
+        public async Task<SurveyDetailDto?> Handle(UpdateSurveyCommand request, CancellationToken cancellationToken)
         {
             var survey = await surveyRepository.GetByIdAsync(request.Id);
 
             if (survey is null)
             {
-                return false;
+                return null;
             }
 
             mapper.Map(request.Survey, survey);
@@ -53,10 +53,9 @@ namespace CaseStudy.Services.Survey.Commands
                     IsActive = survey.IsActive,
                     UpdatedAt = survey.UpdatedAt
                 },
-                RabbitMqConstants.SurveyUpdatedRoutingKey,
                 cancellationToken);
 
-            return true;
+            return mapper.Map<SurveyDetailDto>(survey);
         }
     }
 }

@@ -5,13 +5,13 @@ namespace CaseStudy.Services.Answer.Commands
     using CaseStudy.Dtos.Answer;
     using CaseStudy.Interfaces.Answer;
 
-    public class UpdateAnswerCommand : IRequest<bool>
+    public class UpdateAnswerCommand : IRequest<AnswerDto?>
     {
         public Guid Id { get; set; }
         public UpdateAnswerDto Answer { get; set; } = null!;
     }
 
-    public class UpdateAnswerCommandHandler : IRequestHandler<UpdateAnswerCommand, bool>
+    public class UpdateAnswerCommandHandler : IRequestHandler<UpdateAnswerCommand, AnswerDto?>
     {
         private readonly IAnswerRepository answerRepository;
         private readonly IMapper mapper;
@@ -22,20 +22,21 @@ namespace CaseStudy.Services.Answer.Commands
             this.mapper = mapper;
         }
 
-        public async Task<bool> Handle(UpdateAnswerCommand request, CancellationToken cancellationToken)
+        public async Task<AnswerDto?> Handle(UpdateAnswerCommand request, CancellationToken cancellationToken)
         {
             var answer = await answerRepository.GetByIdAsync(request.Id);
 
             if (answer is null)
             {
-                return false;
+                return null;
             }
 
             mapper.Map(request.Answer, answer);
+            answer.UpdatedAt = DateTime.UtcNow;
 
             await answerRepository.UpdateAsync(answer);
 
-            return true;
+            return mapper.Map<AnswerDto>(answer);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace CaseStudy.Domain.Entities
         public string Value { get; set; } = string.Empty;
         public Question Question { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

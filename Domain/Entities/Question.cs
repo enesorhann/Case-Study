@@ -12,6 +12,6 @@ namespace CaseStudy.Domain.Entities
         public Survey Survey { get; set; } = null!;
         public ICollection<Answer> Answers { get; set; } = new List<Answer>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }
